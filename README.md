@@ -24,3 +24,8 @@
 - 本目录由 `网页/build_release.py` 自动生成，不要直接在这里改代码——改开发目录后重跑脚本
 
 （AI 生成，仅供学习参考）
+
+## 部署方式
+
+代码通过 **SSH** 推送（`git@github.com:chenmianwu/studyspace-portal.git`），
+由 GitHub Pages 自动发布。更新流程见开发目录里的 `update-release.bat`。
