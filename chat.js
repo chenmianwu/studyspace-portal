@@ -86,6 +86,108 @@
       n.messages.scrollTop = n.messages.scrollHeight;
     }
 
+    // ---------- 图片附件 ----------
+    // 学生拍照发题目是最自然的用法，所以选图 / 粘贴 / 拖拽三条路都留着
+    var imgs = []; // [{ file, dataUrl }]
+
+    function buildImageUI() {
+      if (!n.input) return;
+
+      var prev = document.createElement('div');
+      prev.className = 'chat-attachments';
+      prev.id = 'chatAttach_' + subject;
+      prev.hidden = true;
+      n.input.parentNode.insertBefore(prev, n.input);
+
+      var row = n.send.parentNode;
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-ghost attach-btn';
+      btn.type = 'button';
+      btn.textContent = '🖼 图片';
+      btn.title = '拍照或选图（也可以直接 Ctrl+V 粘贴截图）';
+      row.insertBefore(btn, row.firstChild);
+
+      var fi = document.createElement('input');
+      fi.type = 'file';
+      fi.id = 'chatFile_' + subject;
+      fi.accept = 'image/*';
+      fi.multiple = true;
+      fi.style.display = 'none';
+      row.appendChild(fi);
+      btn.onclick = function () { fi.click(); };
+      fi.onchange = function () { addFiles(fi.files); fi.value = ''; };
+
+      n.input.addEventListener('paste', function (e) {
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        var got = [];
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].kind === 'file' && /^image\//.test(items[i].type)) got.push(items[i].getAsFile());
+        }
+        if (got.length) { e.preventDefault(); addFiles(got); }
+      });
+
+      n.input.addEventListener('dragover', function (e) { e.preventDefault(); });
+      n.input.addEventListener('drop', function (e) {
+        if (!e.dataTransfer) return;
+        var got = [];
+        for (var i = 0; i < e.dataTransfer.files.length; i++) {
+          if (/^image\//.test(e.dataTransfer.files[i].type)) got.push(e.dataTransfer.files[i]);
+        }
+        if (got.length) { e.preventDefault(); addFiles(got); }
+      });
+    }
+
+    function addFiles(list) {
+      if (!list || !list.length) return;
+      for (var i = 0; i < list.length; i++) {
+        if (imgs.length >= 4) { showToast('最多 4 张图'); break; }
+        var f = list[i];
+        if (!/^image\//.test(f.type)) continue;
+        if (f.size > 10 * 1024 * 1024) { showToast('有图片超过 10MB，已跳过'); continue; }
+        (function (file) {
+          var fr = new FileReader();
+          fr.onload = function () { imgs.push({ file: file, dataUrl: String(fr.result) }); renderAttach(); };
+          fr.readAsDataURL(file);
+        })(f);
+      }
+    }
+
+    function renderAttach() {
+      var box = document.getElementById('chatAttach_' + subject);
+      if (!box) return;
+      if (!imgs.length) { box.innerHTML = ''; box.hidden = true; return; }
+      box.hidden = false;
+      box.innerHTML = imgs.map(function (im, i) {
+        return '<div class="attach-item"><img src="' + im.dataUrl + '" alt="附件' + (i + 1) + '">' +
+          '<button class="attach-del" data-i="' + i + '" title="移除">×</button></div>';
+      }).join('');
+      box.querySelectorAll('.attach-del').forEach(function (b) {
+        b.onclick = function () { imgs.splice(+b.dataset.i, 1); renderAttach(); };
+      });
+    }
+
+    function clearImgs() {
+      imgs = [];
+      renderAttach();
+    }
+
+    // 在家模式：先把图传到电脑，再把路径塞进问题里让助手 Read
+    async function uploadImages(list) {
+      var paths = [];
+      for (var i = 0; i < (list || []).length; i++) {
+        var r = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: list[i].dataUrl, filename: list[i].file.name }),
+        });
+        var j = await r.json();
+        if (!j.ok) throw new Error(j.error || '上传失败');
+        paths.push({ path: j.path, url: j.url });
+      }
+      return paths;
+    }
+
     // 等回复要几十秒，光转三个点不够，得让玩家看到已经等了多久
     var typingT0 = null, typingTimer = null;
 
@@ -161,20 +263,34 @@
     async function send() {
       if (st.busy) return;
       var text = (n.input.value || '').trim();
-      if (!text) return;
+      // 只发图不打字也允许——拍完直接发是常态
+      if (!text && !imgs.length) return;
+
       st.busy = true;
       n.send.disabled = true;
-      addRow('user', mdToHtml(text), Date.now() / 1000);
+
+      var pendingImgs = imgs.slice();
+      var imgHtml = pendingImgs.length
+        ? '<div class="msg-imgs">' + pendingImgs.map(function (im) {
+            return '<img src="' + im.dataUrl + '" alt="题目图">';
+          }).join('') + '</div>'
+        : '';
+
+      addRow('user', mdToHtml(text) + imgHtml, Date.now() / 1000);
       st.newestRole = 'user';
       setTyping(true);
       scrollBottom();
       n.input.value = '';
+      clearImgs();
 
-      // 外出模式：不走本地服务，直接问云端大模型
+      // 外出模式：图片直接转 base64 发给 vision 模型
       if (st.away) {
-        AwayMode.appendMessage(subject, { id: 'u' + Date.now(), ts: Date.now() / 1000, role: 'user', text: text });
+        AwayMode.appendMessage(subject, {
+          id: 'u' + Date.now(), ts: Date.now() / 1000, role: 'user',
+          text: text || '（发了一张图片）',
+        });
         try {
-          var reply = await AwayMode.ask(subject, text);
+          var reply = await AwayMode.ask(subject, text, pendingImgs.map(function (i) { return i.dataUrl; }));
           AwayMode.appendMessage(subject, {
             id: 'a' + Date.now(), ts: Date.now() / 1000, role: 'assistant', text: reply,
           });
@@ -182,18 +298,38 @@
         } catch (e) {
           setTyping(false);
           addRow('error', '调用模型失败：' + esc(e.message) +
-            '（点顶栏「外出模式」检查 API Key 和网络）', Date.now() / 1000);
+            '（发图片要用能看图的模型，比如通义千问 VL / 智谱 GLM-4V；DeepSeek 看不了图）',
+            Date.now() / 1000);
         }
         n.send.disabled = false;
         st.busy = false;
         return;
       }
 
+      // 在家：先把图片传到电脑，再把路径塞进问题让助手用 Read 看
+      var finalText = text;
+      if (pendingImgs.length) {
+        try {
+          showToast('正在上传图片…');
+          var up = await uploadImages(pendingImgs);
+          var note = '【学生上传了 ' + up.length + ' 张题目图片，请先用 Read 工具查看这些图片，' +
+            '再按你的角色规则回答：\n' +
+            up.map(function (u, i) { return (i + 1) + '. ' + u.path; }).join('\n') + '】';
+          finalText = note + '\n\n' + (text || '（学生没有额外文字说明）');
+        } catch (e) {
+          setTyping(false);
+          addRow('error', '图片上传失败：' + esc(e.message), Date.now() / 1000);
+          n.send.disabled = false;
+          st.busy = false;
+          return;
+        }
+      }
+
       try {
         var r = await fetch('/api/chat/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subject: subject, text: text }),
+          body: JSON.stringify({ subject: subject, text: finalText }),
         });
         var j = await r.json();
         if (!j.ok) {
@@ -241,6 +377,7 @@
 
     async function init() {
       buildQuick();
+      buildImageUI();
 
       // 先判断在家还是外出：连得上 /api/health 就是在家
       var home = await AwayMode.probeHome(2200);
@@ -290,6 +427,35 @@
 
     init();
   }
+
+  // 点气泡里的图片放大看（题目照片往往要看清细节）
+  function lightbox(src) {
+    var box = document.getElementById('imgLightbox');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'imgLightbox';
+      box.className = 'img-lightbox';
+      box.hidden = true;
+      box.innerHTML = '<img alt="放大查看">';
+      box.onclick = function () { box.hidden = true; };
+      document.body.appendChild(box);
+    }
+    box.querySelector('img').src = src;
+    box.hidden = false;
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || t.tagName !== 'IMG') return;
+    if (!t.closest || !t.closest('.msg-imgs')) return;
+    lightbox(t.src);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var box = document.getElementById('imgLightbox');
+    if (box) box.hidden = true;
+  });
 
   document.addEventListener('DOMContentLoaded', function () {
     SUBJECTS.forEach(function (s) {

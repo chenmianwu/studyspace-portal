@@ -6,12 +6,13 @@
   var A = window.AwayMode;
   if (!A) return;
 
+  // vision: 该模型能不能看图。发图片时只有 vision 模型才认。
   var PRESETS = [
-    { name: 'DeepSeek（推荐）', base: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
-    { name: 'Kimi 月之暗面', base: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
-    { name: '通义千问', base: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen-plus' },
-    { name: '智谱 GLM', base: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4-flash' },
-    { name: '自定义…', base: '', model: '' },
+    { name: 'DeepSeek（纯文字，便宜）', base: 'https://api.deepseek.com/v1', model: 'deepseek-chat', vision: false },
+    { name: 'Kimi 月之暗面', base: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k', vision: false },
+    { name: '通义千问 VL（能看图）', base: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen-vl-max', vision: true },
+    { name: '智谱 GLM-4V（能看图）', base: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4v-flash', vision: true },
+    { name: '自定义…', base: '', model: '', vision: false },
   ];
 
   var SUBJECTS = [

@@ -174,7 +174,8 @@
   }
 
   // ---------- 调大模型 ----------
-  async function ask(subject, question) {
+  // images 是 dataURL 数组；传了就按 OpenAI vision 格式发（模型得支持看图）
+  async function ask(subject, question, images) {
     var cfg = getConfig();
     if (!cfg.api_key) throw new Error('还没填 API Key');
 
@@ -183,7 +184,16 @@
     history.forEach(function (m) {
       messages.push({ role: m.role, content: m.text });
     });
-    messages.push({ role: 'user', content: question });
+
+    if (images && images.length) {
+      var content = [{ type: 'text', text: question || '请看这张图。' }];
+      images.forEach(function (d) {
+        content.push({ type: 'image_url', image_url: { url: d } });
+      });
+      messages.push({ role: 'user', content: content });
+    } else {
+      messages.push({ role: 'user', content: question });
+    }
 
     var url = String(cfg.base_url || '').replace(/\/+$/, '') + '/chat/completions';
     var res = await fetch(url, {
