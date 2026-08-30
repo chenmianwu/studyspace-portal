@@ -12,7 +12,7 @@
     cli: {
       cls: 'chat-badge-cli',
       text: '● 直连助手会话',
-      hint: '提问直送工作空间里的助手，回复自动生成，通常 20–60 秒',
+      hint: '提问直送工作空间里的助手（免费模型），回复自动生成，通常 20–60 秒',
     },
     away: {
       cls: 'chat-badge-away',
@@ -72,13 +72,18 @@
 
     var accent = (meta && meta.accent) || subject;
     var icon = (meta && meta.icon) || '🤖';
-    var st = { after: 0, seen: {}, mode: 'bridge', newestRole: null,
+    var st = { after: 0, seen: {}, mode: 'bridge', model: '', newestRole: null,
                busy: false, timer: null, alive: true, pollMs: 3000 };
 
     function setBadge() {
       if (!n.badge) return;
       var m = MODE_LABEL[st.mode] || MODE_LABEL.bridge;
-      n.badge.innerHTML = '<span class="chat-badge ' + m.cls + '">' + m.text + '</span>';
+      var text = m.text;
+      // 直连助手会话时，把当前用的模型（默认免费 hy3）也标出来，家长一眼看清是否免费
+      if (st.mode === 'cli' && st.model) {
+        text += ' · 免费模型 ' + String(st.model).toUpperCase();
+      }
+      n.badge.innerHTML = '<span class="chat-badge ' + m.cls + '">' + text + '</span>';
       if (n.hint) n.hint.textContent = m.hint;
     }
 
@@ -400,6 +405,7 @@
           var j = await r.json();
           if (j.ok) {
             st.mode = j.mode || 'bridge';
+            st.model = j.model || '';
             if (j.poll_interval_ms) st.pollMs = j.poll_interval_ms;
             var s = j.subjects && j.subjects[subject];
             if (s && !s.enabled) {
