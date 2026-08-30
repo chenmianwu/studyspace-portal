@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习中心 · studyspace</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 协议警告横幅：file:// 打开时显示，提示改用 http -->
+  <div id="protocolWarning" class="protocol-warning" hidden></div>
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📚</span>
+      <div class="brand-text">
+        <span class="brand-name">学习中心</span>
+        <span class="brand-sub">studyspace · 同学</span>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-module="home">
+        <span class="nav-icon">🏠</span><span class="nav-label">主页</span>
+      </button>
+      <button class="nav-btn" data-module="general" data-accent="general">
+        <span class="nav-icon">🎯</span><span class="nav-label">总助手</span>
+      </button>
+      <button class="nav-btn" data-module="chinese" data-accent="chinese">
+        <span class="nav-icon">📖</span><span class="nav-label">语文</span>
+      </button>
+      <button class="nav-btn" data-module="english" data-accent="english">
+        <span class="nav-icon">🔤</span><span class="nav-label">英语</span>
+      </button>
+      <button class="nav-btn" data-module="math" data-accent="math">
+        <span class="nav-icon">📐</span><span class="nav-label">数学</span>
+      </button>
+    </nav>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="refreshBtn" title="刷新数据">
+        <span>🔄</span>
+      </button>
+      <button class="icon-btn" id="themeToggle" title="切换主题">
+        <span class="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 移动端导航按钮 -->
+  <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="打开导航">☰</button>
+  <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+
+  <main class="main">
+    <!-- 主页 -->
+    <section class="module-page active" data-page="home">
+      <div class="hero">
+        <div class="hero-text">
+          <p class="hero-eyebrow">初一 · 2026 秋季入学</p>
+          <h1 class="hero-title">欢迎回来，<span class="hero-name">同学</span></h1>
+          <p class="hero-desc">四个学科助手已经就位。今天的小目标是什么？</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-jump="general">打开总助手</button>
+            <button class="btn btn-ghost" data-jump="math">先做数学 →</button>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-value" id="statSessions">4</div>
+            <div class="stat-label">学科助手</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statMistakes">—</div>
+            <div class="stat-label">错题数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statTasks">—</div>
+            <div class="stat-label">今日任务</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">学科模块</h2>
+      <div class="module-grid" id="moduleGrid">
+        <!-- 由 JS 注入 -->
+      </div>
+
+      <h2 class="section-title">
+        学生档案摘要
+        <span id="dataBadge" class="data-badge-host"></span>
+      </h2>
+      <div class="card card-accent-general" id="profileCard">
+        <div id="profileSummary" class="profile-summary">
+          <div class="list-empty">
+            <div style="font-size:24px;margin-bottom:6px">📄</div>
+            <div>正在加载学生档案…</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">今日建议</h2>
+      <div class="tips">
+        <div class="tip">
+          <div class="tip-icon">🌅</div>
+          <div class="tip-body">
+            <h3>早间清单</h3>
+            <p>每天开始学习前，向"总助手"发送：<code>今日清单</code></p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">✏️</div>
+          <div class="tip-body">
+            <h3>做完题批改</h3>
+            <p>完成后向对应学科助手发送：<code>批改 + 你的答案/照片</code></p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">📊</div>
+          <div class="tip-body">
+            <h3>周末自动复盘</h3>
+            <p>周六错题卷 / 周日单元小测 / 周日晚家长周报</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 总助手模块 -->
+    <section class="module-page" data-page="general" data-accent="general">
+      <div class="module-hero">
+        <div class="module-hero-icon">🎯</div>
+        <div class="module-hero-body">
+          <div class="module-hero-eyebrow">私人学习总管</div>
+          <h1 class="module-hero-title">总助手</h1>
+          <p class="module-hero-desc">负责全局规划、出今日清单、周报汇总、跨学科协调。</p>
+        </div>
+        <div class="module-hero-actions">
+          <button class="btn btn-primary" data-action="open-session" data-module="general">打开对话 →</button>
+          <button class="btn btn-ghost" data-action="copy-quick" data-module="general">今日清单</button>
+        </div>
+      </div>
+
+      <div class="module-grid">
+        <div class="card card-accent-general span-2">
+          <h2 class="card-title">
+            在线对话
+            <span id="chatBadge_general" class="chat-badge-host"></span>
+          </h2>
+          <p class="card-text">问题直接送进工作空间的总助手，回复自动回到这里。适合出今日清单、看错题统计、生成周报这类跨科事务。</p>
+          <div class="chat-messages" id="chatMessages_general">
+            <div class="chat-typing" id="chatTyping_general" hidden>
+              <span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span>
+              <span>助手正在回复…</span>
+            </div>
+          </div>
+          <div class="chat-quick" id="chatQuick_general"></div>
+          <textarea class="ask-input chat-input" id="chatInput_general" placeholder="例如：生成今日清单（Enter 发送，Shift+Enter 换行）"></textarea>
+          <div class="action-row">
+            <span class="chat-hint" id="chatHint_general"></span>
+            <button class="btn btn-primary" id="chatSend_general">发送</button>
+          </div>
+        </div>
+
+        <div class="card card-accent-general">
+          <h2 class="card-title">角色设定</h2>
+          <p class="card-text">基于 <code>学生档案.md</code> 长期记住背景、五条铁律、本学期目标；你不需要每次重复交代。</p>
+          <div class="chip-row">
+            <span class="chip">五铁律</span>
+            <span class="chip">人教版/统编版</span>
+            <span class="chip">不代写</span>
+          </div>
+        </div>
+
+        <div class="card card-accent-general">
+          <h2 class="card-title">常用口令</h2>
+          <div class="quick-actions" id="quickActions_general"></div>
+        </div>
+
+        <div class="card card-accent-general">
+          <h2 class="card-title">最近任务</h2>
+          <div id="recentTasks_general" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-general">
+          <h2 class="card-title">最近错题</h2>
+          <div id="recentMistakes_general" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-general span-2">
+          <h2 class="card-title">快速提问</h2>
+          <p class="card-text">在下面输入问题（参考口令手册），点击按钮后会复制到剪贴板并唤起 workbuddy 对话。</p>
+          <textarea class="ask-input" id="askInput_general" placeholder="例如：生成今日清单"></textarea>
+          <div class="action-row">
+            <button class="btn btn-ghost" data-action="copy-ask" data-module="general">仅复制</button>
+            <button class="btn btn-primary" data-action="ask-and-open" data-module="general">复制并打开对话</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 语文模块 -->
+    <section class="module-page" data-page="chinese" data-accent="chinese">
+      <div class="module-hero">
+        <div class="module-hero-icon">📖</div>
+        <div class="module-hero-body">
+          <div class="module-hero-eyebrow">统编版 · 七年级</div>
+          <h1 class="module-hero-title">语文辅导助手</h1>
+          <p class="module-hero-desc">文言文 · 现代文阅读 · 作文 · 古诗文默写 四个模块分工。</p>
+        </div>
+        <div class="module-hero-actions">
+          <button class="btn btn-primary" data-action="open-session" data-module="chinese">打开对话 →</button>
+          <button class="btn btn-ghost" data-action="copy-quick" data-module="chinese">今日清单</button>
+        </div>
+      </div>
+
+      <div class="module-grid">
+        <div class="card card-accent-chinese span-2">
+          <h2 class="card-title">
+            在线对话
+            <span id="chatBadge_chinese" class="chat-badge-host"></span>
+          </h2>
+          <p class="card-text">问题直接送进工作空间的语文辅导助手，回复自动回到这里。助手遵守《学生档案》五铁律：只做助教、不代写、卡题一次只给一步。</p>
+          <div class="chat-messages" id="chatMessages_chinese">
+            <div class="chat-typing" id="chatTyping_chinese" hidden>
+              <span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span>
+              <span>助手正在回复…</span>
+            </div>
+          </div>
+          <div class="chat-quick" id="chatQuick_chinese"></div>
+          <textarea class="ask-input chat-input" id="chatInput_chinese" placeholder="例如：《咏雪》里「俄而雪骤」的骤怎么讲？（Enter 发送，Shift+Enter 换行）"></textarea>
+          <div class="action-row">
+            <span class="chat-hint" id="chatHint_chinese"></span>
+            <button class="btn btn-primary" id="chatSend_chinese">发送</button>
+          </div>
+        </div>
+
+        <div class="card card-accent-chinese">
+          <h2 class="card-title">四块工作方式</h2>
+          <ul class="role-list">
+            <li><strong>文言文</strong> 重点实词表 + 虚词用法 + 断句 + 翻译 + 默写 + 主旨模板</li>
+            <li><strong>现代文</strong> 概括/赏析/含义/作用 四类答题公式，半题示范</li>
+            <li><strong>作文</strong> 只列提纲、改结构、给素材金句，绝不代写</li>
+            <li><strong>古诗文默写</strong> 每周 2 次抽默，错句进入重默池</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent-chinese">
+          <h2 class="card-title">常用口令</h2>
+          <div class="quick-actions" id="quickActions_chinese"></div>
+        </div>
+
+        <div class="card card-accent-chinese">
+          <h2 class="card-title">最近任务</h2>
+          <div id="recentTasks_chinese" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-chinese">
+          <h2 class="card-title">最近错题</h2>
+          <div id="recentMistakes_chinese" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-chinese span-2">
+          <h2 class="card-title">快速提问</h2>
+          <textarea class="ask-input" id="askInput_chinese" placeholder="例如：挖空《论语》十二章"></textarea>
+          <div class="action-row">
+            <button class="btn btn-ghost" data-action="copy-ask" data-module="chinese">仅复制</button>
+            <button class="btn btn-primary" data-action="ask-and-open" data-module="chinese">复制并打开对话</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 英语模块 -->
+    <section class="module-page" data-page="english" data-accent="english">
+      <div class="module-hero">
+        <div class="module-hero-icon">🔤</div>
+        <div class="module-hero-body">
+          <div class="module-hero-eyebrow">人教新目标 Go for it! · 七年级</div>
+          <h1 class="module-hero-title">英语辅导助手</h1>
+          <p class="module-hero-desc">单词 · 语法 · 课文 · 作文 四个模块循环训练。</p>
+        </div>
+        <div class="module-hero-actions">
+          <button class="btn btn-primary" data-action="open-session" data-module="english">打开对话 →</button>
+          <button class="btn btn-ghost" data-action="copy-quick" data-module="english">今日清单</button>
+        </div>
+      </div>
+
+      <div class="module-grid">
+        <div class="card card-accent-english span-2">
+          <h2 class="card-title">
+            在线对话
+            <span id="chatBadge_english" class="chat-badge-host"></span>
+          </h2>
+          <p class="card-text">问题直接送进工作空间的英语辅导助手，回复自动回到这里。助手遵守《学生档案》五铁律：只做助教、不代写、卡题一次只给一步。</p>
+          <div class="chat-messages" id="chatMessages_english">
+            <div class="chat-typing" id="chatTyping_english" hidden>
+              <span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span>
+              <span>助手正在回复…</span>
+            </div>
+          </div>
+          <div class="chat-quick" id="chatQuick_english"></div>
+          <textarea class="ask-input chat-input" id="chatInput_english" placeholder="例如：听写当前单元的 20 个单词（Enter 发送，Shift+Enter 换行）"></textarea>
+          <div class="action-row">
+            <span class="chat-hint" id="chatHint_english"></span>
+            <button class="btn btn-primary" id="chatSend_english">发送</button>
+          </div>
+        </div>
+
+        <div class="card card-accent-english">
+          <h2 class="card-title">四块工作方式</h2>
+          <ul class="role-list">
+            <li><strong>单词</strong> 按单元报中文听写，旧错词池混入 5 个</li>
+            <li><strong>语法</strong> 规则 3 行内 → 5 单选 + 3 中译英</li>
+            <li><strong>课文</strong> 挖 5 个空（重点短语/句型）</li>
+            <li><strong>作文</strong> 提纲 + 句式框架 + 3 个范例句，不代写</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent-english">
+          <h2 class="card-title">常用口令</h2>
+          <div class="quick-actions" id="quickActions_english"></div>
+        </div>
+
+        <div class="card card-accent-english">
+          <h2 class="card-title">最近任务</h2>
+          <div id="recentTasks_english" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-english">
+          <h2 class="card-title">最近错题</h2>
+          <div id="recentMistakes_english" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-english span-2">
+          <h2 class="card-title">快速提问</h2>
+          <textarea class="ask-input" id="askInput_english" placeholder="例如：听写 Unit 3"></textarea>
+          <div class="action-row">
+            <button class="btn btn-ghost" data-action="copy-ask" data-module="english">仅复制</button>
+            <button class="btn btn-primary" data-action="ask-and-open" data-module="english">复制并打开对话</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 数学模块 -->
+    <section class="module-page" data-page="math" data-accent="math">
+      <div class="module-hero">
+        <div class="module-hero-icon">📐</div>
+        <div class="module-hero-body">
+          <div class="module-hero-eyebrow">人教版 · 七年级</div>
+          <h1 class="module-hero-title">数学辅导助手</h1>
+          <p class="module-hero-desc">分步引导、错因四分类、变式训练、口算热身一条龙。</p>
+        </div>
+        <div class="module-hero-actions">
+          <button class="btn btn-primary" data-action="open-session" data-module="math">打开对话 →</button>
+          <button class="btn btn-ghost" data-action="copy-quick" data-module="math">今日清单</button>
+        </div>
+      </div>
+
+      <div class="module-grid">
+        <div class="card card-accent-math span-2">
+          <h2 class="card-title">
+            在线对话
+            <span id="chatBadge_math" class="chat-badge-host"></span>
+          </h2>
+          <p class="card-text">问题直接送进工作空间的数学辅导助手，回复自动回到这里。助手遵守《学生档案》五铁律：只做助教、不代写、卡题一次只给一步。</p>
+          <div class="chat-messages" id="chatMessages_math">
+            <div class="chat-typing" id="chatTyping_math" hidden>
+              <span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span>
+              <span>助手正在回复…</span>
+            </div>
+          </div>
+          <div class="chat-quick" id="chatQuick_math"></div>
+          <textarea class="ask-input chat-input" id="chatInput_math" placeholder="例如：出 10 道有理数口算热身（Enter 发送，Shift+Enter 换行）"></textarea>
+          <div class="action-row">
+            <span class="chat-hint" id="chatHint_math"></span>
+            <button class="btn btn-primary" id="chatSend_math">发送</button>
+          </div>
+        </div>
+
+        <div class="card card-accent-math">
+          <h2 class="card-title">分步引导规则</h2>
+          <ul class="role-list">
+            <li>"不会做"时先反问卡在第几步，最多讲 2 步停下</li>
+            <li>错题先判错因：概念/计算/审题/规范 四选一</li>
+            <li>错 1 道 → 出 2 道变式（1 平行 + 1 略难）</li>
+            <li>每次开头 5 分钟口算热身（10 道有理数/整式）</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent-math">
+          <h2 class="card-title">常用口令</h2>
+          <div class="quick-actions" id="quickActions_math"></div>
+        </div>
+
+        <div class="card card-accent-math">
+          <h2 class="card-title">最近任务</h2>
+          <div id="recentTasks_math" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-math">
+          <h2 class="card-title">最近错题</h2>
+          <div id="recentMistakes_math" class="list-mini"></div>
+        </div>
+
+        <div class="card card-accent-math span-2">
+          <h2 class="card-title">快速提问</h2>
+          <textarea class="ask-input" id="askInput_math" placeholder="例如：讲这道题 + 你的题"></textarea>
+          <div class="action-row">
+            <button class="btn btn-ghost" data-action="copy-ask" data-module="math">仅复制</button>
+            <button class="btn btn-primary" data-action="ask-and-open" data-module="math">复制并打开对话</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast 通知 -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 底部状态栏 -->
+  <footer class="statusbar">
+    <span class="status-dot"></span>
+    <span id="statusText">已连接到 studyspace 工作空间</span>
+    <span class="status-meta">（AI 生成，仅供学习参考）</span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="away.js"></script>
+  <script src="away-ui.js"></script>
+  <script src="app.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
