@@ -94,6 +94,17 @@
     // ---------- 图片附件 ----------
     // 学生拍照发题目是最自然的用法，所以选图 / 粘贴 / 拖拽三条路都留着
     var imgs = []; // [{ file, dataUrl }]
+    var mistakeBtn = null; // 「📌 记错题」按钮引用（发送成功后要复位）
+
+    // 记错题开关是一次性的：发完这一条就自动关掉，
+    // 避免"开一次之后所有对话都能写文件"。
+    function resetMistakeToggle() {
+      st.addMistake = false;
+      if (mistakeBtn) {
+        mistakeBtn.classList.remove('on');
+        mistakeBtn.textContent = '📌 记错题';
+      }
+    }
 
     function buildImageUI() {
       if (!n.input) return;
@@ -111,6 +122,24 @@
       btn.textContent = '🖼 图片';
       btn.title = '拍照或选图（也可以直接 Ctrl+V 粘贴截图）';
       row.insertBefore(btn, row.firstChild);
+
+      // 「记错题」开关：开启后本次提问临时放开写权限，让助手直接写进 xlsx。
+      // 必须手动点这个按钮才生效——不接受对话里出现"记错题"字样自动放开，
+      // 避免被提示词注入骗出写权限。
+      var mbtn = document.createElement('button');
+      mbtn.className = 'btn btn-ghost mistake-btn';
+      mbtn.type = 'button';
+      mbtn.textContent = '📌 记错题';
+      mbtn.title = '开启后，这次提问允许助手把错题直接写进「错题总表.xlsx」';
+      mbtn.onclick = function () {
+        if (st.away) { showToast('外出模式写不了电脑上的错题表，请连家里 WiFi 再试'); return; }
+        st.addMistake = !st.addMistake;
+        mbtn.classList.toggle('on', st.addMistake);
+        mbtn.textContent = st.addMistake ? '📌 记错题 ✓' : '📌 记错题';
+        showToast(st.addMistake ? '已开启：这次提问允许写入错题表' : '已关闭：这次提问不会写文件');
+      };
+      mistakeBtn = mbtn;
+      row.insertBefore(mbtn, row.firstChild);
 
       var fi = document.createElement('input');
       fi.type = 'file';
@@ -334,13 +363,18 @@
         var r = await fetch('/api/chat/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subject: subject, text: finalText }),
+          body: JSON.stringify({
+            subject: subject,
+            text: finalText,
+            add_mistake: !!st.addMistake,
+          }),
         });
         var j = await r.json();
         if (!j.ok) {
           addRow('error', esc(j.error || '发送失败'), Date.now() / 1000);
           setTyping(false);
         } else if (j.ts) {
+          resetMistakeToggle(); // 记错题开关一次性的，发完自动关
           if (j.ts > st.after) st.after = j.ts;
         }
       } catch (e) {

@@ -1084,6 +1084,20 @@ a { color: var(--primary); text-decoration: none; }
 }
 .away-btn:hover { background: var(--primary-soft); }
 
+/* ===== 「记错题」开关 ===== */
+/* 开启时高亮成琥珀色：提醒用户这条提问会真的写进 xlsx */
+.mistake-btn.on {
+  background: #FEF3C7;
+  border-color: #F59E0B;
+  color: #B45309;
+  font-weight: 600;
+}
+[data-theme="dark"] .mistake-btn.on {
+  background: #3A2E12;
+  border-color: #F59E0B;
+  color: #FCD34D;
+}
+
 .away-modal {
   position: fixed;
   inset: 0;
