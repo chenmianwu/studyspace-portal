@@ -152,10 +152,10 @@ a { color: var(--primary); text-decoration: none; }
   justify-content: space-between;
   gap: 16px;
   padding: 14px 28px;
-  background: var(--bg-glass);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  /* 不透明背景 + 阴影，避免半透明叠在彩色 hero 上看不清字 */
+  background: var(--bg-elev);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .brand {
@@ -864,7 +864,14 @@ a { color: var(--primary); text-decoration: none; }
   border-radius: 50%;
   background: #16A34A;
   box-shadow: 0 0 8px rgba(22, 163, 74, 0.6);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
+.status-dot[data-state="checking"]  { background: #F59E0B; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+.status-dot[data-state="connected"] { background: #16A34A; box-shadow: 0 0 8px rgba(22, 163, 74, 0.6); }
+.status-dot[data-state="disconnected"] { background: #DC2626; box-shadow: 0 0 8px rgba(220, 38, 38, 0.55); }
+.statusbar #statusText[data-state="checking"]    { color: #B45309; }
+.statusbar #statusText[data-state="connected"]   { color: #15803D; font-weight: 600; }
+.statusbar #statusText[data-state="disconnected"] { color: #DC2626; font-weight: 600; }
 .status-meta { margin-left: auto; }
 
 /* ===== 响应式 ===== */

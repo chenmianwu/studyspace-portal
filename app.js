@@ -453,6 +453,30 @@
   }
 
   // ---------- 启动 ----------
+  // 实时探 /api/health，让底部状态条反映"真"在不在家里
+  // ——以前是 HTML 写死的"已连接"，导致从公网打开也显示绿点，骗人。
+  async function pollHomeStatus() {
+    const dot = document.querySelector('.status-dot');
+    const text = document.getElementById('statusText');
+    if (!dot || !text) return;
+    try {
+      const r = await fetch('/api/health?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('http ' + r.status);
+      const j = await r.json();
+      if (j && j.ok) {
+        text.textContent = '已连接到 studyspace 工作空间';
+        text.dataset.state = 'connected';
+        dot.dataset.state = 'connected';
+      } else {
+        throw new Error('not ok');
+      }
+    } catch (e) {
+      text.textContent = '未连到家里 server · 当前显示的是公网版本（手机用家里 WiFi 请访问 http://<电脑内网 IP>:8765）';
+      text.dataset.state = 'disconnected';
+      dot.dataset.state = 'disconnected';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initRouter();
@@ -464,6 +488,8 @@
     renderQuickActions();
     loadData();
     startPolling();
+    pollHomeStatus();
+    setInterval(pollHomeStatus, 8000);
     console.log('学习中心已启动 · 错题实时同步中。WorkBuddy 会话：', MODULES);
   });
 })();

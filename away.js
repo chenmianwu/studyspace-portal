@@ -84,21 +84,28 @@
   // ---------- 在家 / 外出 判定 ----------
   // 连得上 /api/health 就说明在家（或有局域网），否则外出
   async function probeHome(timeoutMs) {
-    var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, timeoutMs || 2500);
-    try {
-      var r = await fetch('/api/health?t=' + Date.now(), {
-        signal: ctl ? ctl.signal : undefined,
-        cache: 'no-store',
-      });
-      clearTimeout(timer);
-      if (!r.ok) return false;
-      var j = await r.json();
-      return !!(j && j.ok);
-    } catch (e) {
-      clearTimeout(timer);
-      return false;
+    // 默认超时 4.5s；失败时自动重试一次（避免手机瞬时网络抖动误判 away）
+    timeoutMs = timeoutMs || 4500;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctl) ctl.abort(); }, timeoutMs);
+      try {
+        var r = await fetch('/api/health?t=' + Date.now(), {
+          signal: ctl ? ctl.signal : undefined,
+          cache: 'no-store',
+        });
+        clearTimeout(timer);
+        if (!r.ok) throw new Error('http ' + r.status);
+        var j = await r.json();
+        if (j && j.ok) return true;
+        throw new Error('not ok');
+      } catch (e) {
+        clearTimeout(timer);
+        if (attempt === 1) return false;
+        await new Promise(function (res) { setTimeout(res, 500); });
+      }
     }
+    return false;
   }
 
   // ---------- 在家时把上下文缓存到手机 ----------
