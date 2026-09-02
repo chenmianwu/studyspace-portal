@@ -1275,3 +1275,136 @@ a { color: var(--primary); text-decoration: none; }
   object-fit: contain;
   border-radius: 6px;
 }
+
+/* ===== 激励系统：宝可梦 + 任务 + 金币 ===== */
+[data-accent="pet"] { --c-pet: #F59E0B; --c-pet-soft: #FEF3C7; }
+.nav-btn[data-accent="pet"].active { color: var(--c-pet); }
+
+.pet-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 1.4fr;
+  gap: 16px;
+}
+@media (max-width: 760px) { .pet-grid { grid-template-columns: 1fr; } }
+
+.pet-card, .pet-tasks-card { padding: 18px; }
+.pet-coin-total {
+  font-size: 13px; color: var(--text-soft); font-weight: 500;
+  margin-left: 8px; padding: 2px 10px; background: var(--c-pet-soft);
+  color: #B45309; border-radius: 999px;
+}
+
+.pet-now { display: flex; gap: 16px; align-items: center; }
+.pet-img {
+  width: 140px; height: 140px; object-fit: contain;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08), transparent 65%);
+  border-radius: 12px; flex-shrink: 0;
+}
+.pet-info { flex: 1; min-width: 0; }
+.pet-form-name { font-size: 22px; font-weight: 700; }
+.pet-form-id { color: var(--text-soft); font-size: 12px; margin-top: 2px; }
+.pet-types { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.pet-type {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+}
+.pet-type-草, .pet-type-草 { background: #DCFCE7; color: #15803D; }
+.pet-type-火 { background: #FEE2E2; color: #DC2626; }
+.pet-type-水 { background: #DBEAFE; color: #2563EB; }
+.pet-type-毒 { background: #F3E8FF; color: #7C3AED; }
+.pet-type-飞行 { background: #E0F2FE; color: #0369A1; }
+
+.pet-progress {
+  margin-top: 12px; height: 18px; background: var(--bg-soft);
+  border-radius: 999px; position: relative; overflow: hidden;
+}
+.pet-progress-bar {
+  height: 100%; background: linear-gradient(90deg, #F59E0B, #FBBF24);
+  border-radius: 999px; transition: width 0.4s ease;
+}
+.pet-progress-text {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: #B45309;
+}
+.pet-max { color: #B45309; font-weight: 600; margin-top: 12px; }
+
+#petTasks { margin-top: 8px; }
+.pet-empty { color: var(--text-soft); font-style: italic; padding: 8px 0; }
+.pet-task {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; margin-bottom: 8px;
+  background: var(--bg-soft); border-radius: 10px;
+}
+.pet-task-name { flex: 1; min-width: 0; font-weight: 500; }
+.pet-task-coin { color: #B45309; font-size: 13px; font-weight: 600; }
+.pet-btn-claim {
+  background: #F59E0B; color: #fff; border: 0; padding: 6px 14px;
+  border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;
+}
+.pet-btn-claim:hover { background: #D97706; }
+.pet-btn-del {
+  background: transparent; color: var(--text-mute); border: 0;
+  font-size: 18px; cursor: pointer; padding: 0 6px; line-height: 1;
+}
+.pet-btn-del:hover { color: #DC2626; }
+
+.pet-add-row {
+  display: grid; grid-template-columns: 1fr 90px auto; gap: 8px; margin-top: 12px;
+}
+.pet-add-row input {
+  padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg-elev); color: var(--text); font-size: 14px;
+  font-family: inherit;
+}
+.pet-add-row input:focus { outline: 2px solid #F59E0B55; border-color: #F59E0B; }
+
+/* 换宝可梦选择卡 */
+.pet-choose-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.pet-choose-card {
+  background: var(--bg-soft); border-radius: 14px; padding: 14px;
+  text-align: center; cursor: pointer; border: 2px solid transparent;
+  transition: all 0.15s ease; position: relative;
+}
+.pet-choose-card:hover { border-color: #F59E0B; background: var(--c-pet-soft); }
+.pet-choose-card.on { border-color: #F59E0B; background: var(--c-pet-soft); }
+.pet-choose-card img { width: 100%; max-width: 140px; height: 140px; object-fit: contain; }
+.pet-choose-name { font-weight: 700; font-size: 16px; margin-top: 6px; }
+.pet-choose-sub { font-size: 12px; color: var(--text-soft); }
+.pet-choose-cur { color: #B45309; font-weight: 600; margin-top: 6px; }
+.pet-choose-btn { color: var(--text-soft); margin-top: 6px; font-size: 13px; }
+.pet-choose-hint { margin-top: 14px; padding: 10px 12px; background: #FEF3C7; color: #92400E; border-radius: 8px; font-size: 13px; }
+
+/* Modal */
+.pet-modal {
+  position: fixed; inset: 0; background: rgba(15, 17, 23, 0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 200;
+  padding: 20px;
+}
+.pet-modal[hidden] { display: none; }
+.pet-modal-body {
+  background: var(--bg-elev); border-radius: 16px; padding: 20px;
+  max-width: 600px; width: 100%; max-height: 80vh; overflow: auto;
+  box-shadow: var(--shadow-lg);
+}
+.pet-modal-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+}
+.pet-modal-head h3 { margin: 0; font-size: 18px; }
+.pet-modal-x {
+  background: transparent; border: 0; color: var(--text-soft);
+  font-size: 26px; cursor: pointer; padding: 0 8px; line-height: 1;
+}
+.pet-modal-x:hover { color: var(--text); }
+
+/* 流水列表 */
+.pet-log-total { padding: 10px 12px; background: var(--c-pet-soft); color: #B45309; border-radius: 8px; font-weight: 600; margin-bottom: 12px; }
+.pet-log-list { list-style: none; padding: 0; margin: 0; }
+.pet-log-list li { padding: 10px 0; border-bottom: 1px dashed var(--border); display: flex; gap: 10px; align-items: center; }
+.pet-log-list li:last-child { border-bottom: 0; }
+.pet-log-time { color: var(--text-mute); font-family: var(--font-mono); font-size: 12px; }
+.pet-log-name { flex: 1; }
+.pet-log-coin { color: #B45309; font-weight: 700; }
+.pet-log-evo { color: #7C3AED; font-size: 12px; padding: 2px 8px; background: #F3E8FF; border-radius: 999px; }
