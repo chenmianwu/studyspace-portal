@@ -358,7 +358,14 @@
       if (action === 'claim') { onClaim(t.getAttribute('data-id'), t); return; }
       if (action === 'del') { onDel(t.getAttribute('data-id')); return; }
       var chain = t.closest && t.closest('.pet-choose-card');
-      if (chain) { onChoose(chain.getAttribute('data-chain')); return; }
+      if (chain) {
+        // 「添加新宝可梦」是入口卡片，不是某个 chain
+        if (chain.classList.contains('pet-add-chain')) { showAddChain(); return; }
+        var cid = chain.getAttribute('data-chain');
+        if (!cid) return; // 兜底：没 chain_id 就别瞎发请求
+        onChoose(cid);
+        return;
+      }
     });
     document.getElementById('petModal').addEventListener('click', function (e) {
       // 点空白处也关闭
