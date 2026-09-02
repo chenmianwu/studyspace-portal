@@ -1276,7 +1276,7 @@ a { color: var(--primary); text-decoration: none; }
   border-radius: 6px;
 }
 
-/* ===== 激励系统：宝可梦 + 任务 + 金币 ===== */
+/* ===== 宠物系统：宝可梦 + 金币 + 展馆 ===== */
 [data-accent="pet"] { --c-pet: #F59E0B; --c-pet-soft: #FEF3C7; }
 .nav-btn[data-accent="pet"].active { color: var(--c-pet); }
 
@@ -1408,3 +1408,24 @@ a { color: var(--primary); text-decoration: none; }
 .pet-log-name { flex: 1; }
 .pet-log-coin { color: #B45309; font-weight: 700; }
 .pet-log-evo { color: #7C3AED; font-size: 12px; padding: 2px 8px; background: #F3E8FF; border-radius: 999px; }
+
+/* ===== 宠物系统：展馆 ===== */
+.pet-gallery-card {
+  background: var(--bg-soft); border-radius: 14px; padding: 14px;
+  text-align: center; border: 2px solid transparent;
+}
+.pet-gallery-card img {
+  width: 100%; max-width: 140px; height: 140px; object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+}
+.pet-gallery-exp {
+  margin-top: 6px; font-size: 12px; color: #B45309;
+  background: var(--c-pet-soft); display: inline-block;
+  padding: 2px 10px; border-radius: 999px; font-weight: 600;
+}
+/* 展馆里未收集的形态：灰掉 + 问号 */
+.pet-gallery-locked {
+  background: var(--bg-soft); border-radius: 14px; padding: 14px;
+  text-align: center; opacity: 0.4; border: 2px dashed var(--border);
+}
+.pet-gallery-locked .pet-choose-name { color: var(--text-mute); }

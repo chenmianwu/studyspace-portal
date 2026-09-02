@@ -1,6 +1,6 @@
-// ===== 激励系统：宝可梦 + 任务 + 金币 =====
+// ===== 宠物系统：宝可梦 + 任务 + 金币 =====
 // 后端 API：/api/pet /api/tasks /api/coinlog（见 server.py + pet_api.py）
-// 数据持久化：D:\studyspace\激励\{pets.json, current.json, tasks.json, coinlog.jsonl}
+// 数据持久化：D:\studyspace\宠物\{pets.json, current.json, tasks.json, coinlog.jsonl}
 
 (function () {
   var st = { pet: null, tasks: null, modalOpen: null };
@@ -11,13 +11,14 @@
       + '<div class="module-hero">'
       +   '<div class="module-hero-icon">🎮</div>'
       +   '<div class="module-hero-body">'
-      +     '<div class="module-hero-eyebrow">激励系统</div>'
+      +     '<div class="module-hero-eyebrow">宠物系统</div>'
       +     '<h1 class="module-hero-title">宝可梦 + 金币</h1>'
-      +     '<p class="module-hero-desc">完成任务赚金币，金币=经验，100 经验进化一阶。</p>'
+      +     '<p class="module-hero-desc">完成任务赚金币，金币=经验，100 经验进化一阶。进化过的形态会永久收进展馆 🏛</p>'
       +   '</div>'
       +   '<div class="module-hero-actions">'
       +     '<button class="btn btn-ghost" id="petChangeBtn">换宝可梦</button>'
       +     '<button class="btn btn-ghost" id="petLogBtn">今日流水</button>'
+      +     '<button class="btn btn-primary" id="petGalleryBtn">🏛 展馆</button>'
       +   '</div>'
       + '</div>'
       + '<div class="pet-grid">'
@@ -77,6 +78,10 @@
     try { var r = await fetch('/api/coinlog?date=' + encodeURIComponent(date || '')); return await r.json(); }
     catch (e) { return { ok: false, error: String(e) }; }
   }
+  async function getGallery() {
+    try { var r = await fetch('/api/pet/gallery'); return await r.json(); }
+    catch (e) { return { ok: false, error: String(e) }; }
+  }
 
   // ---------- 渲染 ----------
   function renderPet() {
@@ -84,7 +89,7 @@
     if (!box) return;
     if (!st.pet) { box.innerHTML = '<p class="card-text">⚠ 加载失败，请确认 server 在跑</p>'; return; }
     var cur = st.pet.current;
-    var imgUrl = '/激励/images/' + cur.form.id + '.png';
+    var imgUrl = '/宠物/images/' + cur.form.id + '.png';
     var types = (cur.form.type || []).map(function (t) { return '<span class="pet-type pet-type-' + esc(t) + '">' + esc(t) + '</span>'; }).join('');
     var progress = cur.is_max
       ? '<p class="pet-max">已到最高形态 🏆</p>'
@@ -173,7 +178,7 @@
         var form = c.forms[0];
         return ''
           + '<div class="pet-choose-card' + (c.id === cur.chain_id ? ' on' : '') + '" data-chain="' + esc(c.id) + '">'
-          +   '<img src="/激励/images/' + form.id + '.png" alt="' + esc(form.name) + '" onerror="this.style.opacity=0.3">'
+          +   '<img src="/宠物/images/' + form.id + '.png" alt="' + esc(form.name) + '" onerror="this.style.opacity=0.3">'
           +   '<div class="pet-choose-name">' + esc(form.name) + '</div>'
           +   '<div class="pet-choose-sub">（' + esc(c.name) + '系起点）</div>'
           +   (c.id === cur.chain_id ? '<div class="pet-choose-cur">当前</div>' : '<div class="pet-choose-btn">点这里收养</div>')
@@ -184,6 +189,32 @@
     openModal('选择宝可梦', html);
   }
 
+  function showGallery() {
+    openModal('🏛 展馆', '<p class="card-text">加载中…</p>');
+    getGallery().then(function (j) {
+      if (!j.ok) {
+        document.getElementById('petModalContent').innerHTML = '<p>加载失败：' + esc(j.error || '') + '</p>';
+        return;
+      }
+      var items = j.items || [];
+      var html = '<div class="pet-log-total">已收集 ' + (j.collected || 0) + ' / ' + (j.total_slots || 6) + ' 个形态</div>';
+      if (!items.length) {
+        html += '<p class="card-text pet-empty">展馆还空着 —— 让宠物进化一次，就能收进第一只 🏛</p>';
+      } else {
+        html += '<div class="pet-choose-grid">' + items.map(function (e) {
+          return ''
+            + '<div class="pet-gallery-card">'
+            +   '<img src="/宠物/images/' + esc(e.form_id) + '.png" alt="' + esc(e.form_name) + '" onerror="this.style.opacity=0.3">'
+            +   '<div class="pet-choose-name">' + esc(e.form_name) + '</div>'
+            +   '<div class="pet-choose-sub">' + esc(e.chain_name || '') + ' · ' + esc(e.date || '') + '</div>'
+            +   '<div class="pet-gallery-exp">' + (e.exp || 0) + ' 经验时进化</div>'
+            + '</div>';
+        }).join('') + '</div>';
+      }
+      document.getElementById('petModalContent').innerHTML = html;
+    });
+  }
+
   // ---------- 事件 ----------
   function bind() {
     var sec = document.getElementById('petSection');
@@ -191,6 +222,7 @@
       var t = e.target;
       if (t.id === 'petChangeBtn') { showChange(); return; }
       if (t.id === 'petLogBtn') { showLog(); return; }
+      if (t.id === 'petGalleryBtn') { showGallery(); return; }
       if (t.id === 'petModalClose' || t === document.getElementById('petModal')) { closeModal(); return; }
       if (t.id === 'addTaskBtn') { onAdd(); return; }
       var action = t.getAttribute('data-action');
