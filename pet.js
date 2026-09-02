@@ -3,6 +3,17 @@
 // 数据持久化：D:\studyspace\宠物\{pets.json, current.json, tasks.json, coinlog.jsonl}
 
 (function () {
+
+  // 宠物图片地址：本地（站点根目录）与 GitHub Pages（/仓库名/ 子目录）都能正确加载
+  function petImg(id) {
+    var h = location.hostname;
+    var base = '/';
+    if (h === 'chenmianwu.github.io' || h.slice(-10) === '.github.io') {
+      var seg = (location.pathname.split('/').filter(Boolean)[0]) || '';
+      base = '/' + seg + '/';
+    }
+    return base + '宠物/images/' + id + '.png';
+  }
   var st = { pet: null, tasks: null, modalOpen: null };
 
   // ---------- HTML 注入 ----------
@@ -89,7 +100,7 @@
     if (!box) return;
     if (!st.pet) { box.innerHTML = '<p class="card-text">⚠ 加载失败，请确认 server 在跑</p>'; return; }
     var cur = st.pet.current;
-    var imgUrl = '/宠物/images/' + cur.form.id + '.png';
+    var imgUrl = petImg(cur.form.id);
     var types = (cur.form.type || []).map(function (t) { return '<span class="pet-type pet-type-' + esc(t) + '">' + esc(t) + '</span>'; }).join('');
     var progress = cur.is_max
       ? '<p class="pet-max">已到最高形态 🏆</p>'
@@ -178,7 +189,7 @@
         var form = c.forms[0];
         return ''
           + '<div class="pet-choose-card' + (c.id === cur.chain_id ? ' on' : '') + '" data-chain="' + esc(c.id) + '">'
-          +   '<img src="/宠物/images/' + form.id + '.png" alt="' + esc(form.name) + '" onerror="this.style.opacity=0.3">'
+          +   '<img src="' + petImg(form.id) + '" alt="' + esc(form.name) + '" onerror="this.style.opacity=0.3">'
           +   '<div class="pet-choose-name">' + esc(form.name) + '</div>'
           +   '<div class="pet-choose-sub">（' + esc(c.name) + '系起点）</div>'
           +   (c.id === cur.chain_id ? '<div class="pet-choose-cur">当前</div>' : '<div class="pet-choose-btn">点这里收养</div>')
@@ -204,7 +215,7 @@
         html += '<div class="pet-choose-grid">' + items.map(function (e) {
           return ''
             + '<div class="pet-gallery-card">'
-            +   '<img src="/宠物/images/' + esc(e.form_id) + '.png" alt="' + esc(e.form_name) + '" onerror="this.style.opacity=0.3">'
+            +   '<img src="' + petImg(e.form_id) + '" alt="' + esc(e.form_name) + '" onerror="this.style.opacity=0.3">'
             +   '<div class="pet-choose-name">' + esc(e.form_name) + '</div>'
             +   '<div class="pet-choose-sub">' + esc(e.chain_name || '') + ' · ' + esc(e.date || '') + '</div>'
             +   '<div class="pet-gallery-exp">' + (e.exp || 0) + ' 经验时进化</div>'
