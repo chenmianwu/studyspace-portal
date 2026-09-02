@@ -1426,6 +1426,58 @@ a { color: var(--primary); text-decoration: none; }
 /* 展馆里未收集的形态：灰掉 + 问号 */
 .pet-gallery-locked {
   background: var(--bg-soft); border-radius: 14px; padding: 14px;
-  text-align: center; opacity: 0.4; border: 2px dashed var(--border);
+  text-align: center; opacity: 0.45; border: 2px dashed var(--border);
 }
+.pet-gallery-locked img { filter: grayscale(1) brightness(1.4); }
 .pet-gallery-locked .pet-choose-name { color: var(--text-mute); }
+.pet-locked-tag { background: #EEF0F4; color: var(--text-mute); opacity: 1; }
+
+/* 当前形态阶段标（第 x/3 阶） */
+.pet-stage {
+  display: inline-block; margin-left: 8px; font-size: 12px; font-weight: 600;
+  color: #B45309; background: var(--c-pet-soft); padding: 1px 9px; border-radius: 999px;
+  vertical-align: middle;
+}
+
+/* 任务 +N 按钮领取后的内嵌反馈（替代 alert 弹窗） */
+.pet-btn-claim.claimed { background: #16A34A; transform: scale(1.05); }
+
+/* 进化 / 添加成功的顶部横幅（替代浏览器 alert） */
+.pet-evo-banner {
+  position: fixed; top: 18px; left: 50%; transform: translate(-50%, -120%);
+  background: linear-gradient(135deg, #F59E0B, #F97316); color: #fff;
+  padding: 12px 22px; border-radius: 999px; font-weight: 700; font-size: 15px;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4); z-index: 9999;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .35s; opacity: 0;
+  pointer-events: none; max-width: 90vw; text-align: center;
+}
+.pet-evo-banner.show { transform: translate(-50%, 0); opacity: 1; }
+
+/* 「添加新宝可梦」入口卡片 */
+.pet-choose-card.pet-add-chain {
+  border-style: dashed; cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.pet-choose-card.pet-add-chain:hover { border-color: #F59E0B; background: var(--c-pet-soft); transform: translateY(-2px); }
+.pet-add-chain-icon {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--c-pet-soft); color: #B45309;
+  font-size: 34px; line-height: 64px; text-align: center; font-weight: 700; margin-bottom: 2px;
+}
+
+/* 添加新宝可梦表单 */
+.pet-add-form { display: flex; flex-direction: column; gap: 12px; }
+.pet-add-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-soft); font-weight: 600; }
+.pet-add-form input {
+  padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 14px; background: var(--bg); color: var(--text); font-family: var(--font-sans);
+}
+.pet-add-form input:focus { outline: 2px solid #F59E0B55; border-color: #F59E0B; }
+.pet-add-form-hint { font-size: 13px; color: var(--text-soft); font-weight: 600; margin-top: 4px; }
+.pet-add-form-row { display: grid; grid-template-columns: 1fr 1.2fr 2fr auto; gap: 8px; align-items: center; }
+.pet-add-form-row .pet-btn-del { width: 32px; height: 32px; padding: 0; }
+.pet-add-form-submit { margin-top: 6px; align-self: flex-start; }
+@media (max-width: 620px) {
+  .pet-add-form-row { grid-template-columns: 1fr 1fr; }
+  .pet-add-form-row .f-url { grid-column: 1 / -1; }
+}
