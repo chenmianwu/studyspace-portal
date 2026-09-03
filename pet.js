@@ -111,7 +111,7 @@
       progress = ''
         + '<div class="pet-progress" data-flash="1">'
         +   '<div class="pet-progress-bar" style="width:' + pct.toFixed(0) + '%"></div>'
-        +   '<span class="pet-progress-text">' + cur.exp_in_form + ' / ' + cur.form_exp_total + ' · 还差 ' + cur.form_exp_total + ' 经验进化</span>'
+        +   '<span class="pet-progress-text">' + cur.exp_in_form + ' / ' + cur.form_exp_total + ' · 还差 ' + (cur.form_exp_total - cur.exp_in_form) + ' 经验进化</span>'
         + '</div>';
     }
     // 阶段小标（1 阶/3 阶 等），强化"刚刚归零"的反馈
